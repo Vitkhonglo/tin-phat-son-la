@@ -128,8 +128,9 @@ a{text-decoration:none;color:inherit}
 .legal-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
 .legal-list{border-top:1px solid var(--line)}
 .legal-list div{display:flex;justify-content:space-between;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);font-size:12px}
-.legal-list b{color:var(--navy)}
-.legal-list span{color:var(--muted);text-align:right}
+.legal-list b,.legal-list span{color:#fff}
+.legal-list{border-top-color:rgba(255,255,255,.7)}
+.legal-list div{border-bottom-color:rgba(255,255,255,.7)}
 .site-footer{padding:27px 0;background:#102743;color:#afbdd0;font-size:11px}
 .footer-wrap{display:flex;align-items:center;justify-content:space-between;gap:20px}
 .footer-wrap .brand{color:#fff}
