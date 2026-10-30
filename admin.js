@@ -4,7 +4,7 @@ const configDefaults = {
   facebook: "https://www.facebook.com/share/1DyMQm2soS/", tiktok: "https://www.tiktok.com/", email: "thay-email-cua-ban@example.com", leadsEndpoint: "",
   backgroundImage: "https://i.postimg.cc/0yrxcbkT/Dap-thuy-dien-giua-nui-rung-xanh-tham.png",
   heroImage: "", studentImage: "", blogImage1: "", blogImage2: "", blogImage3: "", officeImage: "",
-  mapEmbedUrl: "",
+  mapEmbedUrl: "https://www.google.com/maps?q=21.3213837,103.9211815&output=embed",
   backgroundBlur: "0", overlayOpacity: "0", primaryColor: "#0d6efd", textColor: "#172b4d", fontSize: "16"
 };
 const contentDefaults = {
