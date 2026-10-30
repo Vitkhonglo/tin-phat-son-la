@@ -25,6 +25,7 @@ const CONFIG = { ...DEFAULT_CONFIG, ...storedConfig };
 const CONTENT = JSON.parse(localStorage.getItem("tinphat-content") || "{}");
 const SLIDES = JSON.parse(localStorage.getItem("tinphat-slides") || "[]");
 const visualEditor = new URLSearchParams(location.search).get("visual-editor") === "1";
+const visualLayout = JSON.parse(localStorage.getItem("tinphat-visual-layout") || "{}");
 document.documentElement.style.setProperty("--background-image", `url("${CONFIG.backgroundImage}")`);
 document.documentElement.style.setProperty("--blue", CONFIG.primaryColor || "#0d6efd");
 document.documentElement.style.setProperty("--ink", CONFIG.textColor || "#172b4d");
@@ -36,6 +37,11 @@ document.documentElement.style.setProperty("--overlay-opacity", `${Number.isFini
 document.querySelectorAll("[data-edit]").forEach((element) => {
   const key = element.dataset.edit;
   if (CONTENT[key]) element.innerHTML = CONTENT[key];
+});
+document.querySelectorAll("[data-layout-id]").forEach((section) => {
+  const savedHtml = visualLayout[section.dataset.layoutId]?.html;
+  const container = section.querySelector(":scope > .container");
+  if (savedHtml && container) container.innerHTML = savedHtml;
 });
 if (Array.isArray(SLIDES) && SLIDES.length) {
   const homepage = document.querySelector("main#top");
@@ -60,13 +66,49 @@ function enableVisualEditor() {
   document.body.classList.add("visual-editor-active");
   const toolbar = document.createElement("div");
   toolbar.className = "visual-toolbar";
-  toolbar.innerHTML = '<strong>CHẾ ĐỘ CHỈNH TRỰC TIẾP</strong><span>Kéo khung hoặc bấm vào chữ để sửa</span><button type="button" data-visual-save>Lưu thay đổi</button><button type="button" data-visual-close>Thoát</button>';
+  toolbar.innerHTML = '<strong>CHỈNH TRỰC TIẾP</strong><span>Kéo khung nhỏ hoặc bấm chữ để sửa</span><button type="button" data-block-up title="Đưa khung lên">↑</button><button type="button" data-block-down title="Đưa khung xuống">↓</button><button type="button" data-block-duplicate>Nhân bản</button><button type="button" data-block-delete>Xóa</button><button type="button" data-visual-save>Lưu thay đổi</button><button type="button" data-visual-close>Thoát</button>';
   document.body.appendChild(toolbar);
+  let selectedBlock = null;
+  const blockSelectors = ".hero-grid > *, .market-grid > *, .steps > *, .proof-grid > *, .blog-grid > *, .contact-grid > *, .legal-grid > *";
+  const registerBlocks = () => {
+    document.querySelectorAll("[data-layout-id]").forEach((section) => {
+      [...section.querySelectorAll(blockSelectors)].forEach((block, index) => {
+        if (!block.dataset.visualBlock) block.dataset.visualBlock = `${section.dataset.layoutId}-${index}-${Math.random().toString(36).slice(2, 7)}`;
+        block.draggable = true;
+        block.classList.add("visual-block");
+        block.addEventListener("click", (event) => {
+          if (event.target.closest("a,button,input,textarea,select")) return;
+          selectedBlock = block;
+          document.querySelectorAll(".visual-block.visual-selected").forEach((item) => item.classList.remove("visual-selected"));
+          block.classList.add("visual-selected");
+        });
+        block.addEventListener("dragstart", (event) => {
+          event.stopPropagation();
+          event.dataTransfer.setData("text/visual-block", block.dataset.visualBlock);
+          block.classList.add("visual-dragging");
+        });
+        block.addEventListener("dragend", () => block.classList.remove("visual-dragging"));
+        block.addEventListener("dragover", (event) => event.preventDefault());
+        block.addEventListener("drop", (event) => {
+          const sourceId = event.dataTransfer.getData("text/visual-block");
+          const source = document.querySelector(`[data-visual-block="${sourceId}"]`);
+          if (!source || source === block || source.parentElement !== block.parentElement) return;
+          event.preventDefault();
+          event.stopPropagation();
+          const siblings = [...block.parentElement.children];
+          if (siblings.indexOf(source) < siblings.indexOf(block)) block.after(source);
+          else block.before(source);
+        });
+      });
+    });
+  };
+  registerBlocks();
   const sections = [...document.querySelectorAll("[data-layout-id]")];
   sections.forEach((section) => {
     section.draggable = true;
     section.setAttribute("data-visual-editable", "true");
     section.addEventListener("dragstart", (event) => {
+      if (event.target.closest(".visual-block")) return;
       event.dataTransfer.setData("text/plain", section.dataset.layoutId);
       section.classList.add("visual-dragging");
     });
@@ -88,6 +130,31 @@ function enableVisualEditor() {
     element.contentEditable = "true";
     element.spellcheck = true;
   });
+  const moveSelected = (direction) => {
+    if (!selectedBlock?.parentElement) return;
+    const sibling = direction < 0 ? selectedBlock.previousElementSibling : selectedBlock.nextElementSibling;
+    if (!sibling || !sibling.classList.contains("visual-block")) return;
+    direction < 0 ? sibling.before(selectedBlock) : sibling.after(selectedBlock);
+  };
+  toolbar.querySelector("[data-block-up]").addEventListener("click", () => moveSelected(-1));
+  toolbar.querySelector("[data-block-down]").addEventListener("click", () => moveSelected(1));
+  toolbar.querySelector("[data-block-delete]").addEventListener("click", () => {
+    if (!selectedBlock) return;
+    selectedBlock.hidden = true;
+    selectedBlock.dataset.visualDeleted = "true";
+    selectedBlock.classList.remove("visual-selected");
+    selectedBlock = null;
+  });
+  toolbar.querySelector("[data-block-duplicate]").addEventListener("click", () => {
+    if (!selectedBlock) return;
+    const copy = selectedBlock.cloneNode(true);
+    copy.dataset.visualBlock = `${selectedBlock.dataset.visualBlock}-copy-${Date.now()}`;
+    copy.hidden = false;
+    copy.dataset.visualDeleted = "false";
+    selectedBlock.after(copy);
+    registerBlocks();
+    copy.click();
+  });
   toolbar.querySelector("[data-visual-save]").addEventListener("click", () => {
     const order = [...document.querySelectorAll("main#top>[data-layout-id]")].map((section) => section.dataset.layoutId);
     const storedSlides = JSON.parse(localStorage.getItem("tinphat-slides") || "[]");
@@ -96,6 +163,16 @@ function enableVisualEditor() {
     const content = JSON.parse(localStorage.getItem("tinphat-content") || "{}");
     document.querySelectorAll("[data-edit]").forEach((element) => { content[element.dataset.edit] = element.innerHTML; });
     localStorage.setItem("tinphat-content", JSON.stringify(content));
+    const layout = {};
+    document.querySelectorAll("[data-layout-id]").forEach((section) => {
+      const container = section.querySelector(":scope > .container");
+      layout[section.dataset.layoutId] = {
+        html: container?.innerHTML || "",
+        order: [...section.querySelectorAll("[data-visual-block]")].map((block) => block.dataset.visualBlock),
+        hidden: [...section.querySelectorAll("[data-visual-block][data-visual-deleted=\"true\"]")].map((block) => block.dataset.visualBlock)
+      };
+    });
+    localStorage.setItem("tinphat-visual-layout", JSON.stringify(layout));
     toolbar.firstElementChild.textContent = "ĐÃ LƯU";
   });
   toolbar.querySelector("[data-visual-close]").addEventListener("click", () => {
