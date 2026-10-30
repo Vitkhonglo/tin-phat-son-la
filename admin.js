@@ -141,6 +141,11 @@ function renderSlideEditor() {
   document.getElementById("slide-background").value = selected.background;
   document.getElementById("slide-font-size").value = selected.fontSize;
   document.getElementById("slide-width").value = selected.width;
+  document.getElementById("slide-preview-title").textContent = selected.title;
+  document.getElementById("slide-preview-description").textContent = selected.description;
+  document.getElementById("slide-preview-title").style.color = selected.color;
+  document.getElementById("slide-preview-description").style.color = selected.color;
+  document.querySelector(".slide-preview").style.backgroundColor = `${selected.background}cc`;
   document.getElementById("slide-font-output").textContent = `${selected.fontSize}px`;
   document.getElementById("slide-width-output").textContent = `${selected.width}%`;
 }
@@ -157,6 +162,14 @@ function updateSelectedSlide(property, value) {
 });
 document.getElementById("slide-font-size").addEventListener("input", (event) => updateSelectedSlide("fontSize", event.target.value));
 document.getElementById("slide-width").addEventListener("input", (event) => updateSelectedSlide("width", event.target.value));
+document.getElementById("slide-preview-title").addEventListener("input", (event) => {
+  document.getElementById("slide-title").value = event.target.textContent;
+  updateSelectedSlide("title", event.target.textContent);
+});
+document.getElementById("slide-preview-description").addEventListener("input", (event) => {
+  document.getElementById("slide-description").value = event.target.textContent;
+  updateSelectedSlide("description", event.target.textContent);
+});
 document.getElementById("reset-layout").addEventListener("click", () => {
   slides = slideDefaults.map((slide) => ({ ...slide }));
   selectedSlideId = slides[0].id;
