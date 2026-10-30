@@ -3,7 +3,7 @@ const DEFAULT_CONFIG = {
   phone: "0395268824",
   phoneDisplay: "0395268824",
   zalo: "http://zaloapp.com/qr/p/d6b6iunnx6a9",
-  facebook: "https://www.facebook.com/",
+  facebook: "https://www.facebook.com/share/1DyMQm2soS/",
   tiktok: "https://www.tiktok.com/@tinphatsonlaa?is_from_webapp=1&sender_device=pc",
   // Có thể dùng FormSubmit (miễn phí) hoặc Google Forms. Để trống sẽ mở email dự phòng.
   email: "tinphatsonlaa@gmail.com",

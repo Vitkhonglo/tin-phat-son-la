@@ -1,7 +1,7 @@
 const ADMIN_PASSWORD = "TinPhat2026";
 const configDefaults = {
   phone: "0980000000", phoneDisplay: "0980 000 000", zalo: "https://zalo.me/0980000000",
-  facebook: "https://www.facebook.com/", tiktok: "https://www.tiktok.com/", email: "thay-email-cua-ban@example.com", leadsEndpoint: "",
+  facebook: "https://www.facebook.com/share/1DyMQm2soS/", tiktok: "https://www.tiktok.com/", email: "thay-email-cua-ban@example.com", leadsEndpoint: "",
   backgroundImage: "https://i.postimg.cc/0yrxcbkT/Dap-thuy-dien-giua-nui-rung-xanh-tham.png",
   heroImage: "", studentImage: "", blogImage1: "", blogImage2: "", blogImage3: "", officeImage: "",
   mapEmbedUrl: "",
@@ -31,8 +31,11 @@ const loginPanel = document.getElementById("login-panel");
 const editorPanel = document.getElementById("editor-panel");
 const error = document.getElementById("login-error");
 const form = document.getElementById("editor-form");
-const CONFIG_VERSION = "professional-ui-v1";
+const CONFIG_VERSION = "professional-ui-v2";
 const storedConfig = JSON.parse(localStorage.getItem("tinphat-config") || "{}");
+if (!storedConfig.facebook || storedConfig.facebook === "https://www.facebook.com/" || storedConfig.facebook === "https://facebook.com/") {
+  storedConfig.facebook = configDefaults.facebook;
+}
 if (localStorage.getItem("tinphat-config-version") !== CONFIG_VERSION) {
   storedConfig.backgroundBlur = "0";
   storedConfig.overlayOpacity = "0";
