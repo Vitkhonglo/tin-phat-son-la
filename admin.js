@@ -3,7 +3,7 @@ const configDefaults = {
   phone: "0980000000", phoneDisplay: "0980 000 000", zalo: "https://zalo.me/0980000000",
   facebook: "https://www.facebook.com/", tiktok: "https://www.tiktok.com/", email: "thay-email-cua-ban@example.com",
   backgroundImage: "https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=2400&q=85",
-  primaryColor: "#0d6efd", textColor: "#172b4d", fontSize: "16"
+  backgroundBlur: "8", overlayOpacity: "86", primaryColor: "#0d6efd", textColor: "#172b4d", fontSize: "16"
 };
 const contentDefaults = {
   heroTitle: "Mở lối đi <span>vững vàng</span> cho tương lai của bạn",
@@ -35,10 +35,16 @@ document.getElementById("logout-button").addEventListener("click", () => {
 });
 function fillForm() {
   Object.entries({ ...savedConfig, ...savedContent }).forEach(([key, value]) => { if (form.elements[key]) form.elements[key].value = value; });
-  updateFontLabel();
+  updateRangeLabels();
 }
-function updateFontLabel() { document.getElementById("font-output").textContent = `${form.elements.fontSize.value}px`; }
-form.elements.fontSize.addEventListener("input", updateFontLabel);
+function updateRangeLabels() {
+  document.getElementById("font-output").textContent = `${form.elements.fontSize.value}px`;
+  document.getElementById("blur-output").textContent = `${form.elements.backgroundBlur.value}px`;
+  document.getElementById("overlay-output").textContent = `${form.elements.overlayOpacity.value}%`;
+}
+form.elements.fontSize.addEventListener("input", updateRangeLabels);
+form.elements.backgroundBlur.addEventListener("input", updateRangeLabels);
+form.elements.overlayOpacity.addEventListener("input", updateRangeLabels);
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   const values = Object.fromEntries(new FormData(form).entries());
@@ -51,6 +57,8 @@ form.addEventListener("submit", (event) => {
   document.documentElement.style.setProperty("--ink", config.textColor);
   document.documentElement.style.setProperty("--font-size", `${config.fontSize}px`);
   document.documentElement.style.setProperty("--background-image", `url("${config.backgroundImage}")`);
+  document.documentElement.style.setProperty("--background-blur", `${config.backgroundBlur}px`);
+  document.documentElement.style.setProperty("--overlay-opacity", `${Number(config.overlayOpacity) / 100}`);
   document.getElementById("save-status").textContent = "Đã lưu trên trình duyệt này.";
 });
 document.getElementById("reset-button").addEventListener("click", () => {
