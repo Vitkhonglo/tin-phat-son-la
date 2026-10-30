@@ -155,6 +155,22 @@ function enableVisualEditor() {
     registerBlocks();
     copy.click();
   });
+  document.addEventListener("keydown", (event) => {
+    if (!selectedBlock || event.target.isContentEditable || event.target.closest("input,textarea,select")) return;
+    if (event.key === "Delete") {
+      event.preventDefault();
+      toolbar.querySelector("[data-block-delete]").click();
+    } else if (event.ctrlKey && event.key.toLowerCase() === "d") {
+      event.preventDefault();
+      toolbar.querySelector("[data-block-duplicate]").click();
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      moveSelected(-1);
+    } else if (event.key === "ArrowDown") {
+      event.preventDefault();
+      moveSelected(1);
+    }
+  });
   toolbar.querySelector("[data-visual-save]").addEventListener("click", () => {
     const order = [...document.querySelectorAll("main#top>[data-layout-id]")].map((section) => section.dataset.layoutId);
     const storedSlides = JSON.parse(localStorage.getItem("tinphat-slides") || "[]");
