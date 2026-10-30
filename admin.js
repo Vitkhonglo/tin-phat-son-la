@@ -3,7 +3,7 @@ const configDefaults = {
   phone: "0980000000", phoneDisplay: "0980 000 000", zalo: "https://zalo.me/0980000000",
   facebook: "https://www.facebook.com/", tiktok: "https://www.tiktok.com/", email: "thay-email-cua-ban@example.com",
   backgroundImage: "https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=2400&q=85",
-  backgroundBlur: "8", overlayOpacity: "86", primaryColor: "#0d6efd", textColor: "#172b4d", fontSize: "16"
+  backgroundBlur: "0", overlayOpacity: "0", primaryColor: "#0d6efd", textColor: "#172b4d", fontSize: "16"
 };
 const contentDefaults = {
   heroTitle: "Mở lối đi <span>vững vàng</span> cho tương lai của bạn",
@@ -20,7 +20,15 @@ const loginPanel = document.getElementById("login-panel");
 const editorPanel = document.getElementById("editor-panel");
 const error = document.getElementById("login-error");
 const form = document.getElementById("editor-form");
-const savedConfig = { ...configDefaults, ...JSON.parse(localStorage.getItem("tinphat-config") || "{}") };
+const CONFIG_VERSION = "clear-background-v1";
+const storedConfig = JSON.parse(localStorage.getItem("tinphat-config") || "{}");
+if (localStorage.getItem("tinphat-config-version") !== CONFIG_VERSION) {
+  storedConfig.backgroundBlur = "0";
+  storedConfig.overlayOpacity = "0";
+  localStorage.setItem("tinphat-config-version", CONFIG_VERSION);
+  localStorage.setItem("tinphat-config", JSON.stringify(storedConfig));
+}
+const savedConfig = { ...configDefaults, ...storedConfig };
 const savedContent = { ...contentDefaults, ...JSON.parse(localStorage.getItem("tinphat-content") || "{}") };
 
 function showEditor() { loginPanel.hidden = true; editorPanel.hidden = false; fillForm(); }
@@ -52,6 +60,7 @@ form.addEventListener("submit", (event) => {
   const config = Object.fromEntries(configKeys.map((key) => [key, values[key]]));
   const content = Object.fromEntries(Object.keys(contentDefaults).map((key) => [key, values[key]]));
   localStorage.setItem("tinphat-config", JSON.stringify(config));
+  localStorage.setItem("tinphat-config-version", CONFIG_VERSION);
   localStorage.setItem("tinphat-content", JSON.stringify(content));
   document.documentElement.style.setProperty("--blue", config.primaryColor);
   document.documentElement.style.setProperty("--ink", config.textColor);

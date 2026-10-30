@@ -8,17 +8,27 @@ const DEFAULT_CONFIG = {
   // Có thể dùng FormSubmit (miễn phí) hoặc Google Forms. Để trống sẽ mở email dự phòng.
   email: "tinphatsonlaa@gmail.com",
   backgroundImage: "https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=2400&q=85",
-  backgroundBlur: "8",
-  overlayOpacity: "86"
+  backgroundBlur: "0",
+  overlayOpacity: "0"
 };
-const CONFIG = { ...DEFAULT_CONFIG, ...JSON.parse(localStorage.getItem("tinphat-config") || "{}") };
+const CONFIG_VERSION = "clear-background-v1";
+const storedConfig = JSON.parse(localStorage.getItem("tinphat-config") || "{}");
+if (localStorage.getItem("tinphat-config-version") !== CONFIG_VERSION) {
+  storedConfig.backgroundBlur = "0";
+  storedConfig.overlayOpacity = "0";
+  localStorage.setItem("tinphat-config-version", CONFIG_VERSION);
+  localStorage.setItem("tinphat-config", JSON.stringify(storedConfig));
+}
+const CONFIG = { ...DEFAULT_CONFIG, ...storedConfig };
 const CONTENT = JSON.parse(localStorage.getItem("tinphat-content") || "{}");
 document.documentElement.style.setProperty("--background-image", `url("${CONFIG.backgroundImage}")`);
 document.documentElement.style.setProperty("--blue", CONFIG.primaryColor || "#0d6efd");
 document.documentElement.style.setProperty("--ink", CONFIG.textColor || "#172b4d");
 document.documentElement.style.setProperty("--font-size", `${CONFIG.fontSize || 16}px`);
-document.documentElement.style.setProperty("--background-blur", `${CONFIG.backgroundBlur || 8}px`);
-document.documentElement.style.setProperty("--overlay-opacity", `${Number(CONFIG.overlayOpacity || 86) / 100}`);
+const backgroundBlur = Number(CONFIG.backgroundBlur);
+const overlayOpacity = Number(CONFIG.overlayOpacity);
+document.documentElement.style.setProperty("--background-blur", `${Number.isFinite(backgroundBlur) ? backgroundBlur : 0}px`);
+document.documentElement.style.setProperty("--overlay-opacity", `${Number.isFinite(overlayOpacity) ? overlayOpacity / 100 : 0}`);
 document.querySelectorAll("[data-edit]").forEach((element) => {
   const key = element.dataset.edit;
   if (CONTENT[key]) element.innerHTML = CONTENT[key];
