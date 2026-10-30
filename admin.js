@@ -16,6 +16,15 @@ const contentDefaults = {
   hours: "Thứ 2 - Thứ 7 · 08:00 - 17:30", legalInfo: "Giấy phép và thông tin doanh nghiệp sẽ cập nhật tại đây",
   legalLead: "Hãy bổ sung giấy phép, tên pháp nhân, địa chỉ chính xác và giờ làm việc trước khi đưa website lên quảng bá."
 };
+const slideDefaults = [
+  { id: "hero", label: "Slide mở đầu", title: "Mở lối đi vững vàng", description: "Thông điệp chính của website", color: "#ffffff", background: "#123052", fontSize: 42, width: 100 },
+  { id: "markets", label: "Khung thị trường", title: "Những thị trường chúng tôi đồng hành", description: "Các lựa chọn Nhật, Hàn, Đài Loan và XKLĐ Nhật", color: "#172b4d", background: "#ffffff", fontSize: 30, width: 100 },
+  { id: "process", label: "Khung quy trình", title: "Quy trình rõ ràng", description: "Các bước tư vấn và chuẩn bị hồ sơ", color: "#172b4d", background: "#f4f8ff", fontSize: 30, width: 100 },
+  { id: "students", label: "Khung học viên", title: "Học viên của chúng tôi", description: "Câu chuyện thật và hành trình thật", color: "#ffffff", background: "#123052", fontSize: 30, width: 100 },
+  { id: "blog", label: "Khung bài viết", title: "Góc chia sẻ kinh nghiệm", description: "Bài viết giúp khách hàng tìm thấy website trên Google", color: "#172b4d", background: "#ffffff", fontSize: 30, width: 100 },
+  { id: "contact", label: "Khung nhận tư vấn", title: "Nhận lộ trình miễn phí", description: "Form để khách hàng để lại thông tin", color: "#ffffff", background: "#123052", fontSize: 30, width: 100 },
+  { id: "legal", label: "Khung pháp lý", title: "Thông tin văn phòng", description: "Địa chỉ, giờ làm việc và thông tin pháp lý", color: "#ffffff", background: "#123052", fontSize: 24, width: 100 }
+];
 const loginPanel = document.getElementById("login-panel");
 const editorPanel = document.getElementById("editor-panel");
 const error = document.getElementById("login-error");
@@ -31,6 +40,9 @@ if (localStorage.getItem("tinphat-config-version") !== CONFIG_VERSION) {
 }
 const savedConfig = { ...configDefaults, ...storedConfig };
 const savedContent = { ...contentDefaults, ...JSON.parse(localStorage.getItem("tinphat-content") || "{}") };
+let slides = JSON.parse(localStorage.getItem("tinphat-slides") || "null") || slideDefaults.map((slide) => ({ ...slide }));
+let selectedSlideId = slides[0].id;
+if (!localStorage.getItem("tinphat-slides")) localStorage.setItem("tinphat-slides", JSON.stringify(slides));
 
 function showEditor() { loginPanel.hidden = true; editorPanel.hidden = false; fillForm(); }
 if (sessionStorage.getItem("tinphat-admin") === "yes") showEditor();
@@ -45,6 +57,7 @@ document.getElementById("logout-button").addEventListener("click", () => {
 function fillForm() {
   Object.entries({ ...savedConfig, ...savedContent }).forEach(([key, value]) => { if (form.elements[key]) form.elements[key].value = value; });
   updateRangeLabels();
+  renderSlideEditor();
 }
 function updateRangeLabels() {
   document.getElementById("font-output").textContent = `${form.elements.fontSize.value}px`;
@@ -63,6 +76,7 @@ form.addEventListener("submit", (event) => {
   localStorage.setItem("tinphat-config", JSON.stringify(config));
   localStorage.setItem("tinphat-config-version", CONFIG_VERSION);
   localStorage.setItem("tinphat-content", JSON.stringify(content));
+  localStorage.setItem("tinphat-slides", JSON.stringify(slides));
   document.documentElement.style.setProperty("--blue", config.primaryColor);
   document.documentElement.style.setProperty("--ink", config.textColor);
   document.documentElement.style.setProperty("--font-size", `${config.fontSize}px`);
@@ -95,3 +109,57 @@ async function renderLeads() {
 }
 document.getElementById("refresh-leads").addEventListener("click", renderLeads);
 renderLeads();
+
+function renderSlideEditor() {
+  const list = document.getElementById("slide-list");
+  if (!list) return;
+  list.innerHTML = slides.map((slide) => `<button class="slide-item${slide.id === selectedSlideId ? " selected" : ""}" type="button" draggable="true" data-slide-id="${slide.id}"><span class="drag-handle">☷</span><span><b>${escapeText(slide.label)}</b><small>${escapeText(slide.title)}</small></span></button>`).join("");
+  list.querySelectorAll(".slide-item").forEach((item) => {
+    item.addEventListener("click", () => { selectedSlideId = item.dataset.slideId; renderSlideEditor(); });
+    item.addEventListener("dragstart", (event) => event.dataTransfer.setData("text/plain", item.dataset.slideId));
+    item.addEventListener("dragover", (event) => event.preventDefault());
+    item.addEventListener("drop", (event) => {
+      event.preventDefault();
+      const sourceId = event.dataTransfer.getData("text/plain");
+      const sourceIndex = slides.findIndex((slide) => slide.id === sourceId);
+      const targetIndex = slides.findIndex((slide) => slide.id === item.dataset.slideId);
+      if (sourceIndex < 0 || targetIndex < 0 || sourceIndex === targetIndex) return;
+      const [moved] = slides.splice(sourceIndex, 1);
+      slides.splice(targetIndex, 0, moved);
+      localStorage.setItem("tinphat-slides", JSON.stringify(slides));
+      renderSlideEditor();
+    });
+  });
+  const selected = slides.find((slide) => slide.id === selectedSlideId);
+  const properties = document.getElementById("slide-properties");
+  if (!selected) { properties.hidden = true; return; }
+  properties.hidden = false;
+  document.getElementById("slide-label").value = selected.label;
+  document.getElementById("slide-title").value = selected.title;
+  document.getElementById("slide-description").value = selected.description;
+  document.getElementById("slide-color").value = selected.color;
+  document.getElementById("slide-background").value = selected.background;
+  document.getElementById("slide-font-size").value = selected.fontSize;
+  document.getElementById("slide-width").value = selected.width;
+  document.getElementById("slide-font-output").textContent = `${selected.fontSize}px`;
+  document.getElementById("slide-width-output").textContent = `${selected.width}%`;
+}
+function escapeText(value) { return String(value || "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[character]); }
+function updateSelectedSlide(property, value) {
+  const selected = slides.find((slide) => slide.id === selectedSlideId);
+  if (!selected) return;
+  selected[property] = property === "fontSize" || property === "width" ? Number(value) : value;
+  localStorage.setItem("tinphat-slides", JSON.stringify(slides));
+  renderSlideEditor();
+}
+["label", "title", "description", "color", "background"].forEach((property) => {
+  document.getElementById(`slide-${property}`).addEventListener("input", (event) => updateSelectedSlide(property, event.target.value));
+});
+document.getElementById("slide-font-size").addEventListener("input", (event) => updateSelectedSlide("fontSize", event.target.value));
+document.getElementById("slide-width").addEventListener("input", (event) => updateSelectedSlide("width", event.target.value));
+document.getElementById("reset-layout").addEventListener("click", () => {
+  slides = slideDefaults.map((slide) => ({ ...slide }));
+  selectedSlideId = slides[0].id;
+  localStorage.setItem("tinphat-slides", JSON.stringify(slides));
+  renderSlideEditor();
+});

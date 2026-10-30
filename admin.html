@@ -22,6 +22,24 @@
         </div>
         <div class="admin-actions"><button class="button button-primary" type="submit">Lưu thay đổi</button><button class="button button-light" type="button" id="reset-button">Khôi phục nội dung mẫu</button><span id="save-status"></span></div>
       </form>
+      <section class="admin-card slide-editor" id="slide-editor">
+        <div class="leads-header">
+          <div><p class="eyebrow">CHỈNH NHƯ POWERPOINT</p><h2>Bố cục các khung trang chủ</h2></div>
+          <button class="button button-light" id="reset-layout" type="button">Khôi phục bố cục</button>
+        </div>
+        <p class="admin-help">Kéo biểu tượng ☷ để đổi vị trí khung. Chọn một khung để sửa chữ và kiểu hiển thị. Bấm lưu để áp dụng cho website.</p>
+        <div class="slide-editor-grid">
+          <div class="slide-list" id="slide-list" aria-label="Danh sách khung trang chủ"></div>
+          <div class="slide-properties" id="slide-properties" hidden>
+            <label>Tên khung<input id="slide-label" type="text"></label>
+            <label>Tiêu đề hiển thị<input id="slide-title" type="text"></label>
+            <label>Mô tả hiển thị<textarea id="slide-description" rows="4"></textarea></label>
+            <div class="color-row"><label>Màu chữ<input id="slide-color" type="color"></label><label>Màu nền khung<input id="slide-background" type="color"></label></div>
+            <label>Cỡ chữ <output id="slide-font-output"></output><input id="slide-font-size" type="range" min="14" max="64" step="1"></label>
+            <label>Chiều rộng khung <output id="slide-width-output"></output><input id="slide-width" type="range" min="60" max="100" step="1"></label>
+          </div>
+        </div>
+      </section>
       <section class="admin-card leads-card"><div class="leads-header"><div><p class="eyebrow">DỮ LIỆU KHÁCH HÀNG</p><h2>Danh sách yêu cầu tư vấn</h2></div><button class="button button-light" id="refresh-leads" type="button">Làm mới</button></div><div class="table-responsive"><table class="leads-table"><thead><tr><th>Thời gian</th><th>Họ tên</th><th>Điện thoại</th><th>Nhu cầu</th><th>Lời nhắn</th></tr></thead><tbody id="leads-body"></tbody></table></div></section>
     </section>
   </main>

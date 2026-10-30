@@ -23,6 +23,7 @@ if (localStorage.getItem("tinphat-config-version") !== CONFIG_VERSION) {
 }
 const CONFIG = { ...DEFAULT_CONFIG, ...storedConfig };
 const CONTENT = JSON.parse(localStorage.getItem("tinphat-content") || "{}");
+const SLIDES = JSON.parse(localStorage.getItem("tinphat-slides") || "[]");
 document.documentElement.style.setProperty("--background-image", `url("${CONFIG.backgroundImage}")`);
 document.documentElement.style.setProperty("--blue", CONFIG.primaryColor || "#0d6efd");
 document.documentElement.style.setProperty("--ink", CONFIG.textColor || "#172b4d");
@@ -35,6 +36,24 @@ document.querySelectorAll("[data-edit]").forEach((element) => {
   const key = element.dataset.edit;
   if (CONTENT[key]) element.innerHTML = CONTENT[key];
 });
+if (Array.isArray(SLIDES) && SLIDES.length) {
+  const homepage = document.querySelector("main#top");
+  const sections = new Map([...document.querySelectorAll("[data-layout-id]")].map((section) => [section.dataset.layoutId, section]));
+  SLIDES.forEach((slide) => {
+    const section = sections.get(slide.id);
+    if (!section) return;
+    homepage?.appendChild(section);
+    section.style.color = slide.color || "";
+    section.style.backgroundColor = slide.background ? `${slide.background}cc` : "";
+    const container = section.querySelector(".container");
+    if (container) container.style.maxWidth = `calc(1200px * ${Math.min(100, Math.max(60, Number(slide.width) || 100)) / 100})`;
+    const heading = section.querySelector("h1, h2");
+    if (heading && slide.title) heading.textContent = slide.title;
+    const description = section.querySelector(".hero-lead, .section-heading > p, .center-heading > p, .proof-grid .muted, .contact-copy > p, .legal-copy > p");
+    if (description && slide.description) description.textContent = slide.description;
+    if (heading && slide.fontSize) heading.style.fontSize = `${slide.fontSize}px`;
+  });
+}
 
 document.querySelectorAll("[data-phone-link]").forEach((link) => {
   link.href = `tel:${CONFIG.phone}`;
