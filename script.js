@@ -6,10 +6,15 @@ const DEFAULT_CONFIG = {
   facebook: "https://www.facebook.com/",
   tiktok: "https://www.tiktok.com/@tinphatsonlaa?is_from_webapp=1&sender_device=pc",
   // Có thể dùng FormSubmit (miễn phí) hoặc Google Forms. Để trống sẽ mở email dự phòng.
-  email: "tinphatsonlaa@gmail.com"
+  email: "tinphatsonlaa@gmail.com",
+  backgroundImage: "https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=2400&q=85"
 };
 const CONFIG = { ...DEFAULT_CONFIG, ...JSON.parse(localStorage.getItem("tinphat-config") || "{}") };
 const CONTENT = JSON.parse(localStorage.getItem("tinphat-content") || "{}");
+document.documentElement.style.setProperty("--background-image", `url("${CONFIG.backgroundImage}")`);
+document.documentElement.style.setProperty("--blue", CONFIG.primaryColor || "#0d6efd");
+document.documentElement.style.setProperty("--ink", CONFIG.textColor || "#172b4d");
+document.documentElement.style.setProperty("--font-size", `${CONFIG.fontSize || 16}px`);
 document.querySelectorAll("[data-edit]").forEach((element) => {
   const key = element.dataset.edit;
   if (CONTENT[key]) element.innerHTML = CONTENT[key];

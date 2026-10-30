@@ -2,6 +2,7 @@ const ADMIN_PASSWORD = "TinPhat2026";
 const configDefaults = {
   phone: "0980000000", phoneDisplay: "0980 000 000", zalo: "https://zalo.me/0980000000",
   facebook: "https://www.facebook.com/", tiktok: "https://www.tiktok.com/", email: "thay-email-cua-ban@example.com",
+  backgroundImage: "https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=2400&q=85",
   primaryColor: "#0d6efd", textColor: "#172b4d", fontSize: "16"
 };
 const contentDefaults = {
@@ -49,6 +50,7 @@ form.addEventListener("submit", (event) => {
   document.documentElement.style.setProperty("--blue", config.primaryColor);
   document.documentElement.style.setProperty("--ink", config.textColor);
   document.documentElement.style.setProperty("--font-size", `${config.fontSize}px`);
+  document.documentElement.style.setProperty("--background-image", `url("${config.backgroundImage}")`);
   document.getElementById("save-status").textContent = "Đã lưu trên trình duyệt này.";
 });
 document.getElementById("reset-button").addEventListener("click", () => {
