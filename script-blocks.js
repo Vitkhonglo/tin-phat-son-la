@@ -8,7 +8,7 @@ const DEFAULT_CONFIG = {
   // Có thể dùng FormSubmit (miễn phí) hoặc Google Forms. Để trống sẽ mở email dự phòng.
   email: "tinphatsonlaa@gmail.com",
   backgroundImage: "https://i.postimg.cc/0yrxcbkT/Dap-thuy-dien-giua-nui-rung-xanh-tham.png",
-  leadsEndpoint: "",
+  leadsEndpoint: "https://script.google.com/macros/s/AKfycbzeMV5PaLfxBNlc4OGQaW7EilWiXGQPwIJ1IISoC4foqBwUXYTdqM1jv-H-0WUUjOoO/exec",
   mapEmbedUrl: "https://www.google.com/maps?q=21.3213837,103.9211815&output=embed",
   backgroundBlur: "0",
   overlayOpacity: "0"

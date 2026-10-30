@@ -1,10 +1,11 @@
 const ADMIN_PASSWORD = "TinPhat2026";
 const configDefaults = {
   phone: "0980000000", phoneDisplay: "0980 000 000", zalo: "https://zalo.me/0980000000",
-  facebook: "https://www.facebook.com/share/1DyMQm2soS/", tiktok: "https://www.tiktok.com/", email: "thay-email-cua-ban@example.com", leadsEndpoint: "",
+  facebook: "https://www.facebook.com/share/1DyMQm2soS/", tiktok: "https://www.tiktok.com/", email: "thay-email-cua-ban@example.com",
   backgroundImage: "https://i.postimg.cc/0yrxcbkT/Dap-thuy-dien-giua-nui-rung-xanh-tham.png",
   heroImage: "", studentImage: "", blogImage1: "", blogImage2: "", blogImage3: "", officeImage: "",
   mapEmbedUrl: "https://www.google.com/maps?q=21.3213837,103.9211815&output=embed",
+  leadsEndpoint: "https://script.google.com/macros/s/AKfycbzeMV5PaLfxBNlc4OGQaW7EilWiXGQPwIJ1IISoC4foqBwUXYTdqM1jv-H-0WUUjOoO/exec",
   backgroundBlur: "0", overlayOpacity: "0", primaryColor: "#0d6efd", textColor: "#172b4d", fontSize: "16"
 };
 const contentDefaults = {
