@@ -9,6 +9,7 @@ const DEFAULT_CONFIG = {
   email: "tinphatsonlaa@gmail.com",
   backgroundImage: "https://i.postimg.cc/0yrxcbkT/Dap-thuy-dien-giua-nui-rung-xanh-tham.png",
   leadsEndpoint: "",
+  mapEmbedUrl: "https://www.google.com/maps?q=21.3213837,103.9211815&output=embed",
   backgroundBlur: "0",
   overlayOpacity: "0"
 };
