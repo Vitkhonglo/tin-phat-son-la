@@ -1,12 +1,12 @@
 // Thay các giá trị trong CONFIG bằng thông tin thật trước khi đăng website.
 const DEFAULT_CONFIG = {
-  phone: "0980000000",
-  phoneDisplay: "0980 000 000",
-  zalo: "https://zalo.me/0980000000",
+  phone: "0395268824",
+  phoneDisplay: "0395268824",
+  zalo: "http://zaloapp.com/qr/p/d6b6iunnx6a9",
   facebook: "https://www.facebook.com/",
-  tiktok: "https://www.tiktok.com/",
+  tiktok: "https://www.tiktok.com/@tinphatsonlaa?is_from_webapp=1&sender_device=pc",
   // Có thể dùng FormSubmit (miễn phí) hoặc Google Forms. Để trống sẽ mở email dự phòng.
-  email: "thay-email-cua-ban@example.com"
+  email: "tinphatsonlaa@gmail.com"
 };
 const CONFIG = { ...DEFAULT_CONFIG, ...JSON.parse(localStorage.getItem("tinphat-config") || "{}") };
 const CONTENT = JSON.parse(localStorage.getItem("tinphat-content") || "{}");
