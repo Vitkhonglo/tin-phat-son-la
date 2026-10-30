@@ -7,15 +7,17 @@ const DEFAULT_CONFIG = {
   tiktok: "https://www.tiktok.com/@tinphatsonlaa?is_from_webapp=1&sender_device=pc",
   // Có thể dùng FormSubmit (miễn phí) hoặc Google Forms. Để trống sẽ mở email dự phòng.
   email: "tinphatsonlaa@gmail.com",
-  backgroundImage: "https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=2400&q=85",
+  backgroundImage: "https://i.postimg.cc/0yrxcbkT/Dap-thuy-dien-giua-nui-rung-xanh-tham.png",
+  leadsEndpoint: "",
   backgroundBlur: "0",
   overlayOpacity: "0"
 };
-const CONFIG_VERSION = "clear-background-v1";
+const CONFIG_VERSION = "professional-ui-v1";
 const storedConfig = JSON.parse(localStorage.getItem("tinphat-config") || "{}");
 if (localStorage.getItem("tinphat-config-version") !== CONFIG_VERSION) {
   storedConfig.backgroundBlur = "0";
   storedConfig.overlayOpacity = "0";
+  storedConfig.backgroundImage = DEFAULT_CONFIG.backgroundImage;
   localStorage.setItem("tinphat-config-version", CONFIG_VERSION);
   localStorage.setItem("tinphat-config", JSON.stringify(storedConfig));
 }
@@ -79,6 +81,15 @@ leadForm?.addEventListener("submit", (event) => {
   const body = `Họ tên: ${name}\nSố điện thoại: ${phone}\nQuan tâm: ${interest}\nLời nhắn: ${message || "(không có)"}`;
   const status = form.querySelector(".form-status");
 
+  const lead = { name, phone, interest, message, createdAt: new Date().toISOString() };
+  const localLeads = JSON.parse(localStorage.getItem("tinphat-leads") || "[]");
+  localStorage.setItem("tinphat-leads", JSON.stringify([lead, ...localLeads]));
+  if (CONFIG.leadsEndpoint) {
+    fetch(CONFIG.leadsEndpoint, { method: "POST", mode: "no-cors", body: JSON.stringify(lead) }).catch(() => {});
+    status.textContent = "Đã gửi yêu cầu. Chúng tôi sẽ liên hệ sớm!";
+    form.reset();
+    return;
+  }
   if (CONFIG.email && !CONFIG.email.includes("example.com")) {
     window.location.href = `mailto:${CONFIG.email}?subject=${encodeURIComponent("Yêu cầu tư vấn mới từ website")}&body=${encodeURIComponent(body)}`;
     status.textContent = "Đã mở ứng dụng email để gửi yêu cầu. Cảm ơn bạn!";
@@ -89,3 +100,6 @@ leadForm?.addEventListener("submit", (event) => {
   status.textContent = "Đã ghi nhận thông tin trên trình duyệt. Vui lòng bấm Gọi/Zalo để được phản hồi nhanh hơn.";
   form.reset();
 });
+document.querySelectorAll(".section,.contact-section,.legal-section").forEach((section) => section.classList.add("reveal"));
+const revealObserver = new IntersectionObserver((entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("is-visible")), { threshold: .12 });
+document.querySelectorAll(".reveal").forEach((element) => revealObserver.observe(element));

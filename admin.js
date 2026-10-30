@@ -1,8 +1,8 @@
 const ADMIN_PASSWORD = "TinPhat2026";
 const configDefaults = {
   phone: "0980000000", phoneDisplay: "0980 000 000", zalo: "https://zalo.me/0980000000",
-  facebook: "https://www.facebook.com/", tiktok: "https://www.tiktok.com/", email: "thay-email-cua-ban@example.com",
-  backgroundImage: "https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=2400&q=85",
+  facebook: "https://www.facebook.com/", tiktok: "https://www.tiktok.com/", email: "thay-email-cua-ban@example.com", leadsEndpoint: "",
+  backgroundImage: "https://i.postimg.cc/0yrxcbkT/Dap-thuy-dien-giua-nui-rung-xanh-tham.png",
   backgroundBlur: "0", overlayOpacity: "0", primaryColor: "#0d6efd", textColor: "#172b4d", fontSize: "16"
 };
 const contentDefaults = {
@@ -20,11 +20,12 @@ const loginPanel = document.getElementById("login-panel");
 const editorPanel = document.getElementById("editor-panel");
 const error = document.getElementById("login-error");
 const form = document.getElementById("editor-form");
-const CONFIG_VERSION = "clear-background-v1";
+const CONFIG_VERSION = "professional-ui-v1";
 const storedConfig = JSON.parse(localStorage.getItem("tinphat-config") || "{}");
 if (localStorage.getItem("tinphat-config-version") !== CONFIG_VERSION) {
   storedConfig.backgroundBlur = "0";
   storedConfig.overlayOpacity = "0";
+  storedConfig.backgroundImage = configDefaults.backgroundImage;
   localStorage.setItem("tinphat-config-version", CONFIG_VERSION);
   localStorage.setItem("tinphat-config", JSON.stringify(storedConfig));
 }
@@ -75,3 +76,10 @@ document.getElementById("reset-button").addEventListener("click", () => {
   localStorage.removeItem("tinphat-config"); localStorage.removeItem("tinphat-content"); fillForm();
   document.getElementById("save-status").textContent = "Đã khôi phục nội dung mẫu.";
 });
+function renderLeads() {
+  const leads = JSON.parse(localStorage.getItem("tinphat-leads") || "[]");
+  const escapeHtml = (value) => String(value || "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[character]);
+  document.getElementById("leads-body").innerHTML = leads.length ? leads.map((lead) => `<tr><td>${escapeHtml(new Date(lead.createdAt).toLocaleString("vi-VN"))}</td><td>${escapeHtml(lead.name)}</td><td>${escapeHtml(lead.phone)}</td><td>${escapeHtml(lead.interest)}</td><td>${escapeHtml(lead.message)}</td></tr>`).join("") : '<tr><td colspan="5">Chưa có yêu cầu tư vấn trên trình duyệt này.</td></tr>';
+}
+document.getElementById("refresh-leads").addEventListener("click", renderLeads);
+renderLeads();
