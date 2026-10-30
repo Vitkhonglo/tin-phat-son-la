@@ -3,6 +3,8 @@ const configDefaults = {
   phone: "0980000000", phoneDisplay: "0980 000 000", zalo: "https://zalo.me/0980000000",
   facebook: "https://www.facebook.com/", tiktok: "https://www.tiktok.com/", email: "thay-email-cua-ban@example.com", leadsEndpoint: "",
   backgroundImage: "https://i.postimg.cc/0yrxcbkT/Dap-thuy-dien-giua-nui-rung-xanh-tham.png",
+  heroImage: "", studentImage: "", blogImage1: "", blogImage2: "", blogImage3: "", officeImage: "",
+  mapEmbedUrl: "",
   backgroundBlur: "0", overlayOpacity: "0", primaryColor: "#0d6efd", textColor: "#172b4d", fontSize: "16"
 };
 const contentDefaults = {
@@ -57,7 +59,6 @@ document.getElementById("logout-button").addEventListener("click", () => {
 function fillForm() {
   Object.entries({ ...savedConfig, ...savedContent }).forEach(([key, value]) => { if (form.elements[key]) form.elements[key].value = value; });
   updateRangeLabels();
-  renderSlideEditor();
 }
 function updateRangeLabels() {
   document.getElementById("font-output").textContent = `${form.elements.fontSize.value}px`;
@@ -87,7 +88,7 @@ form.addEventListener("submit", (event) => {
 });
 document.getElementById("reset-button").addEventListener("click", () => {
   if (!confirm("Khôi phục toàn bộ nội dung mẫu?")) return;
-  localStorage.removeItem("tinphat-config"); localStorage.removeItem("tinphat-content"); fillForm();
+  localStorage.removeItem("tinphat-config"); localStorage.removeItem("tinphat-content"); localStorage.removeItem("tinphat-visual-layout"); fillForm();
   document.getElementById("save-status").textContent = "Đã khôi phục nội dung mẫu.";
 });
 async function renderLeads() {
@@ -109,70 +110,3 @@ async function renderLeads() {
 }
 document.getElementById("refresh-leads").addEventListener("click", renderLeads);
 renderLeads();
-
-function renderSlideEditor() {
-  const list = document.getElementById("slide-list");
-  if (!list) return;
-  list.innerHTML = slides.map((slide) => `<button class="slide-item${slide.id === selectedSlideId ? " selected" : ""}" type="button" draggable="true" data-slide-id="${slide.id}"><span class="drag-handle">☷</span><span><b>${escapeText(slide.label)}</b><small>${escapeText(slide.title)}</small></span></button>`).join("");
-  list.querySelectorAll(".slide-item").forEach((item) => {
-    item.addEventListener("click", () => { selectedSlideId = item.dataset.slideId; renderSlideEditor(); });
-    item.addEventListener("dragstart", (event) => event.dataTransfer.setData("text/plain", item.dataset.slideId));
-    item.addEventListener("dragover", (event) => event.preventDefault());
-    item.addEventListener("drop", (event) => {
-      event.preventDefault();
-      const sourceId = event.dataTransfer.getData("text/plain");
-      const sourceIndex = slides.findIndex((slide) => slide.id === sourceId);
-      const targetIndex = slides.findIndex((slide) => slide.id === item.dataset.slideId);
-      if (sourceIndex < 0 || targetIndex < 0 || sourceIndex === targetIndex) return;
-      const [moved] = slides.splice(sourceIndex, 1);
-      slides.splice(targetIndex, 0, moved);
-      localStorage.setItem("tinphat-slides", JSON.stringify(slides));
-      renderSlideEditor();
-    });
-  });
-  const selected = slides.find((slide) => slide.id === selectedSlideId);
-  const properties = document.getElementById("slide-properties");
-  if (!selected) { properties.hidden = true; return; }
-  properties.hidden = false;
-  document.getElementById("slide-label").value = selected.label;
-  document.getElementById("slide-title").value = selected.title;
-  document.getElementById("slide-description").value = selected.description;
-  document.getElementById("slide-color").value = selected.color;
-  document.getElementById("slide-background").value = selected.background;
-  document.getElementById("slide-font-size").value = selected.fontSize;
-  document.getElementById("slide-width").value = selected.width;
-  document.getElementById("slide-preview-title").textContent = selected.title;
-  document.getElementById("slide-preview-description").textContent = selected.description;
-  document.getElementById("slide-preview-title").style.color = selected.color;
-  document.getElementById("slide-preview-description").style.color = selected.color;
-  document.querySelector(".slide-preview").style.backgroundColor = `${selected.background}cc`;
-  document.getElementById("slide-font-output").textContent = `${selected.fontSize}px`;
-  document.getElementById("slide-width-output").textContent = `${selected.width}%`;
-}
-function escapeText(value) { return String(value || "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[character]); }
-function updateSelectedSlide(property, value) {
-  const selected = slides.find((slide) => slide.id === selectedSlideId);
-  if (!selected) return;
-  selected[property] = property === "fontSize" || property === "width" ? Number(value) : value;
-  localStorage.setItem("tinphat-slides", JSON.stringify(slides));
-  renderSlideEditor();
-}
-["label", "title", "description", "color", "background"].forEach((property) => {
-  document.getElementById(`slide-${property}`).addEventListener("input", (event) => updateSelectedSlide(property, event.target.value));
-});
-document.getElementById("slide-font-size").addEventListener("input", (event) => updateSelectedSlide("fontSize", event.target.value));
-document.getElementById("slide-width").addEventListener("input", (event) => updateSelectedSlide("width", event.target.value));
-document.getElementById("slide-preview-title").addEventListener("input", (event) => {
-  document.getElementById("slide-title").value = event.target.textContent;
-  updateSelectedSlide("title", event.target.textContent);
-});
-document.getElementById("slide-preview-description").addEventListener("input", (event) => {
-  document.getElementById("slide-description").value = event.target.textContent;
-  updateSelectedSlide("description", event.target.textContent);
-});
-document.getElementById("reset-layout").addEventListener("click", () => {
-  slides = slideDefaults.map((slide) => ({ ...slide }));
-  selectedSlideId = slides[0].id;
-  localStorage.setItem("tinphat-slides", JSON.stringify(slides));
-  renderSlideEditor();
-});

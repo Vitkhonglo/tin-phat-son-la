@@ -34,6 +34,25 @@ const backgroundBlur = Number(CONFIG.backgroundBlur);
 const overlayOpacity = Number(CONFIG.overlayOpacity);
 document.documentElement.style.setProperty("--background-blur", `${Number.isFinite(backgroundBlur) ? backgroundBlur : 0}px`);
 document.documentElement.style.setProperty("--overlay-opacity", `${Number.isFinite(overlayOpacity) ? overlayOpacity / 100 : 0}`);
+document.querySelectorAll("[data-image]").forEach((element) => {
+  const imageUrl = String(CONFIG[element.dataset.image] || "").trim();
+  if (!imageUrl) return;
+  if (element.tagName === "IMG") {
+    element.src = imageUrl;
+    element.hidden = false;
+  } else {
+    element.style.backgroundImage = `url("${imageUrl}")`;
+    element.classList.add("has-admin-image");
+    element.textContent = "";
+  }
+});
+const mapUrl = String(CONFIG.mapEmbedUrl || "").trim();
+const mapFrame = document.querySelector("[data-map-frame]");
+const map = document.querySelector("[data-map]");
+if (mapUrl && mapFrame && map) {
+  map.src = mapUrl;
+  mapFrame.hidden = false;
+}
 document.querySelectorAll("[data-edit]").forEach((element) => {
   const key = element.dataset.edit;
   if (CONTENT[key]) element.innerHTML = CONTENT[key];

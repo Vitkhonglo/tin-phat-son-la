@@ -34,6 +34,25 @@ const backgroundBlur = Number(CONFIG.backgroundBlur);
 const overlayOpacity = Number(CONFIG.overlayOpacity);
 document.documentElement.style.setProperty("--background-blur", `${Number.isFinite(backgroundBlur) ? backgroundBlur : 0}px`);
 document.documentElement.style.setProperty("--overlay-opacity", `${Number.isFinite(overlayOpacity) ? overlayOpacity / 100 : 0}`);
+document.querySelectorAll("[data-image]").forEach((element) => {
+  const imageUrl = String(CONFIG[element.dataset.image] || "").trim();
+  if (!imageUrl) return;
+  if (element.tagName === "IMG") {
+    element.src = imageUrl;
+    element.hidden = false;
+  } else {
+    element.style.backgroundImage = `url("${imageUrl}")`;
+    element.classList.add("has-admin-image");
+    element.textContent = "";
+  }
+});
+const mapUrl = String(CONFIG.mapEmbedUrl || "").trim();
+const mapFrame = document.querySelector("[data-map-frame]");
+const map = document.querySelector("[data-map]");
+if (mapUrl && mapFrame && map) {
+  map.src = mapUrl;
+  mapFrame.hidden = false;
+}
 document.querySelectorAll("[data-edit]").forEach((element) => {
   const key = element.dataset.edit;
   if (CONTENT[key]) element.innerHTML = CONTENT[key];
@@ -154,6 +173,22 @@ function enableVisualEditor() {
     selectedBlock.after(copy);
     registerBlocks();
     copy.click();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (!selectedBlock || event.target.isContentEditable || event.target.closest("input,textarea,select")) return;
+    if (event.key === "Delete") {
+      event.preventDefault();
+      toolbar.querySelector("[data-block-delete]").click();
+    } else if (event.ctrlKey && event.key.toLowerCase() === "d") {
+      event.preventDefault();
+      toolbar.querySelector("[data-block-duplicate]").click();
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      moveSelected(-1);
+    } else if (event.key === "ArrowDown") {
+      event.preventDefault();
+      moveSelected(1);
+    }
   });
   toolbar.querySelector("[data-visual-save]").addEventListener("click", () => {
     const order = [...document.querySelectorAll("main#top>[data-layout-id]")].map((section) => section.dataset.layoutId);
