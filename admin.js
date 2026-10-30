@@ -76,8 +76,20 @@ document.getElementById("reset-button").addEventListener("click", () => {
   localStorage.removeItem("tinphat-config"); localStorage.removeItem("tinphat-content"); fillForm();
   document.getElementById("save-status").textContent = "Đã khôi phục nội dung mẫu.";
 });
-function renderLeads() {
-  const leads = JSON.parse(localStorage.getItem("tinphat-leads") || "[]");
+async function renderLeads() {
+  let leads = JSON.parse(localStorage.getItem("tinphat-leads") || "[]");
+  const endpoint = String(savedConfig.leadsEndpoint || "").trim();
+  if (endpoint) {
+    try {
+      const response = await fetch(endpoint, { headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const sharedLeads = await response.json();
+      if (!Array.isArray(sharedLeads)) throw new Error("Dữ liệu trả về không phải danh sách.");
+      leads = sharedLeads;
+    } catch (requestError) {
+      document.getElementById("save-status").textContent = `Không tải được dữ liệu Google Sheets: ${requestError.message}`;
+    }
+  }
   const escapeHtml = (value) => String(value || "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[character]);
   document.getElementById("leads-body").innerHTML = leads.length ? leads.map((lead) => `<tr><td>${escapeHtml(new Date(lead.createdAt).toLocaleString("vi-VN"))}</td><td>${escapeHtml(lead.name)}</td><td>${escapeHtml(lead.phone)}</td><td>${escapeHtml(lead.interest)}</td><td>${escapeHtml(lead.message)}</td></tr>`).join("") : '<tr><td colspan="5">Chưa có yêu cầu tư vấn trên trình duyệt này.</td></tr>';
 }
